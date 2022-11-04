@@ -1,6 +1,6 @@
 function createElement(tag, props, ...children) {
     const element = document.createElement(tag);
-
+    
     Object.keys(props).forEach(key => element[key] = props[key]);
     
     children.forEach(child => {
@@ -15,11 +15,8 @@ function createElement(tag, props, ...children) {
 }
 
 class EventEmitter {
-    constructr() {
-        this.events = {
-            //'add': [], // callbacks array for add event
-            //'edit': [] // callbacks array for edit event
-        };
+    constructor() {
+        this.events = {};
     }
 
     // subcribe on event
@@ -30,8 +27,8 @@ class EventEmitter {
 
     // make all callbacks work
     emit(type, arg) {
-        if (this.event[type]) {
-            this.event[type].forEach(callback => callback(arg));
+        if (this.events[type]) {
+            this.events[type].forEach(callback => callback(arg));
         }
     }
 }

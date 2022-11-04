@@ -4,9 +4,8 @@ module.exports = {
   entry: './src/index.js',
 
   output: {
-    path: path.resolve(__dirname, 'public'),
+    path: path.resolve(__dirname, 'public/js'),
     filename: 'app.js',
-    publicPath: '/js'
   },
 
   mode: 'development',
@@ -14,6 +13,4 @@ module.exports = {
   devServer: {
     static: path.join(__dirname, 'public'),
   },
-
-  // devtool: 'cheap-eval-source-map' // remove for build
 };

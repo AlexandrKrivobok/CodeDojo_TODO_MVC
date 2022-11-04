@@ -1,4 +1,4 @@
-import { createElement, EventEmitter } from './heplers.js'
+import { createElement, EventEmitter } from './helpers'
 
 class View extends EventEmitter {
     constructor() {
@@ -6,32 +6,32 @@ class View extends EventEmitter {
         
         this.form = document.getElementById('todo-form');
         this.input = document.getElementById('add-input');
-        this.list = document.getElementById('add-list');
+        this.list = document.getElementById('todo-list');
 
         this.form.addEventListener('submit', this.handleAdd.bind(this));
     }
 
     createElement(todo) {
-        const checkbox = createElement('input', { type: checkbox, className: 'checkbox', checked: todo.completed ? 'checked' : '' });
+        const checkbox = createElement('input', { type: 'checkbox', className: 'checkbox'});
         const label = createElement('label', { className: 'title' }, todo.title);
-        const editInput = createElement('input', { type: text, className: 'textfield' });
+        const editInput = createElement('input', { type: 'text', className: 'textfield' });
         const editButton = createElement('button', { className: 'edit'}, 'Change');
         const removeButton = createElement('button', { className: 'remove'}, 'Delete');
-        const item = createElement('li', { className: `todo-item${todo.completed ? 'completed' : ''}`, 'data-id': todo.id }, checkbox, label, editInput, editButton, removeButton );
+        const item = createElement('li', { className: `todo-item ${todo.completed ? 'completed' : ''}`, id: `${todo.id}` }, checkbox, label, editInput, editButton, removeButton );
 
         return this.addEventListeners(item);
     }
 
-    addEventListeners(item) {
+    addEventListeners(listItem) {
         const checkbox = listItem.querySelector('.checkbox');
         const editButton = listItem.querySelector('button.edit');
         const removeButton = listItem.querySelector('button.remove');
 
-        checkbox.addEventListeners('change', this.handleToggle.bind(this));
-        editButton.addEventListeners('click', this.handleEdit.bind(this));
-        removeButton.addEventListeners('click', this.handleRemove.bind(this));
+        checkbox.addEventListener('change', this.handleToggle.bind(this));
+        editButton.addEventListener('click', this.handleEdit.bind(this));
+        removeButton.addEventListener('click', this.handleRemove.bind(this));
 
-        return item;
+        return listItem;
     }
 
     handleAdd(event) {
@@ -46,15 +46,15 @@ class View extends EventEmitter {
 
     handleToggle({ target }) {
         const listItem = target.parentNode;
-        const id = listItem.getAttribute('data-id');
-        const completed = target.completed;
+        const id = listItem.getAttribute('id');
+        const completed = target.checked;
 
-        // update model
+        this.emit('toggle', { id, completed });
     }
 
     handleEdit({ target }) {
         const listItem = target.parentNode;
-        const id = listItem.getAttribute('data-id');
+        const id = listItem.getAttribute('id');
         const label = listItem.querySelector('.title');
         const input = listItem.querySelector('.textfield');
         const editButton = listItem.querySelector('button.edit');
@@ -62,7 +62,7 @@ class View extends EventEmitter {
         const isEditing = listItem.classList.contains('editing');
 
         if (isEditing) {
-            // update model
+            this.emit('edit', { id, title });
         } else {
             input.value = label.textContent;
             editButton.textContent = 'Save';
@@ -72,12 +72,13 @@ class View extends EventEmitter {
 
     handleRemove({ target }) {
         const listItem = target.parentNode;
+        const id = listItem.getAttribute('id');
 
-        // remove item from model
+        this.emit('remove', id );
     }
 
     findListItem(id) {
-        return this.list.querySelector(`[data-id="${id}"]`);
+        return this.list.querySelector(`[id="${id}"]`);
     }
 
     // add a li-item to the todo list
@@ -116,8 +117,7 @@ class View extends EventEmitter {
 
     // remove li-item from the todo list
     removeItem(id) {
-        const listItem = this.findListItem(todo.id);
-
+        const listItem = this.findListItem(id);
         this.list.removeChild(listItem);
     }
 }
